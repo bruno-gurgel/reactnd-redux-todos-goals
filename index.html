@@ -136,6 +136,18 @@
       };
     }
 
+    function handleInitialData() {
+      return (dispatch) => {
+        return Promise.all([API.fetchGoals(), API.fetchTodos()]).then(
+          ([goals, todos]) => {
+            dispatch(receiveDataAction(todos, goals));
+            console.log("todos", todos);
+            console.log("goals", goals);
+          }
+        );
+      };
+    }
+
     function todos(state = [], action) {
       switch (action.type) {
         case ADD_TODO:
@@ -305,15 +317,7 @@
     function App(props) {
       const [ignored, forceUpdate] = React.useReducer((x) => x + 1, 0);
 
-      React.useEffect(() => {
-        Promise.all([API.fetchGoals(), API.fetchTodos()]).then(
-          ([goals, todos]) => {
-            props.store.dispatch(receiveDataAction(todos, goals));
-            console.log("todos", todos);
-            console.log("goals", goals);
-          }
-        );
-      }, []);
+      React.useEffect(() => props.store.dispatch(handleInitialData()), []);
 
       React.useEffect(() => {
         props.store.subscribe(() => forceUpdate());
