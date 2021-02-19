@@ -85,7 +85,31 @@
           dispatch(addTodoAction(todo));
           alert("An error ocurred. Try again.");
         });
-      }
+      };
+    }
+
+    function handleAddGoal(name, callbackFunction) {
+      return (dispatch) => {
+        return API.saveGoal(name)
+          .then((goal) => {
+            dispatch(addGoalAction(goal));
+            callbackFunction();
+          })
+          .catch(() => {
+            alert("An error ocurred. Try again.");
+          });
+      };
+    }
+
+    function handleDeleteGoal(goal) {
+      return (dispatch) => {
+        dispatch(removeGoalAction(goal.id));
+
+        return API.deleteGoal(goal.id).catch(() => {
+          dispatch(addGoalAction(goal));
+          alert("An error ocurred. Try again.");
+        });
+      };
     }
 
     function todos(state = [], action) {
@@ -241,25 +265,15 @@
       const addItem = (event) => {
         event.preventDefault();
 
-        return API.saveGoal(goalInput.current)
-          .then((goal) => {
-            props.store.dispatch(addGoalAction(goal));
-            goalInput.current = "";
-          })
-          .catch(() => {
-            props.store.dispatch(addTodoAction(todo));
-            alert("An error ocurred. Try again.");
-          });
+        props.store.dispatch(
+          handleAddGoal(goalInput.current, () => (goalInput.current = ""))
+        );
       };
       const handleChange = (event) =>
         (goalInput.current = event.target.value);
 
       const removeItem = (goal) => {
-        props.store.dispatch(removeGoalAction(goal.id));
-        return API.deleteGoal(goal.id).catch(() => {
-          props.store.dispatch(addGoalAction(goal));
-          alert("An error ocurred. Try again.");
-        });
+        props.store.dispatch(handleDeleteGoal(goal));
       };
       return (
         <div>
