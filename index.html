@@ -184,16 +184,15 @@
 
       const addItem = (event) => {
         event.preventDefault();
-        const name = todoInput.current;
-        todoInput.current = "";
 
-        props.store.dispatch(
-          addTodoAction({
-            name,
-            complete: false,
-            id: generateId(),
+        return API.saveTodo(todoInput.current)
+          .then((todo) => {
+            props.store.dispatch(addTodoAction(todo));
+            todoInput.current = "";
           })
-        );
+          .catch(() => {
+            alert("An error ocurred. Try again.");
+          });
       };
 
       const handleChange = (event) =>
@@ -201,10 +200,18 @@
 
       const removeItem = (todo) => {
         props.store.dispatch(removeTodoAction(todo.id));
+        return API.deleteTodo(todo.id).catch(() => {
+          props.store.dispatch(addTodoAction(todo));
+          alert("An error ocurred. Try again.");
+        });
       };
 
       const toggleItem = (id) => {
         props.store.dispatch(toggleTodoAction(id));
+        return API.saveTodoToggle(id).catch(() => {
+          props.store.dispatch(toggleTodoAction(id));
+          alert("An error ocurred. Try again.");
+        });
       };
 
       return (
@@ -227,21 +234,25 @@
       const addItem = (event) => {
         event.preventDefault();
 
-        const name = goalInput.current;
-        goalInput.current = "";
-
-        props.store.dispatch(
-          addGoalAction({
-            id: generateId(),
-            name,
+        return API.saveGoal(goalInput.current)
+          .then((goal) => {
+            props.store.dispatch(addGoalAction(goal));
+            goalInput.current = "";
           })
-        );
+          .catch(() => {
+            props.store.dispatch(addTodoAction(todo));
+            alert("An error ocurred. Try again.");
+          });
       };
       const handleChange = (event) =>
         (goalInput.current = event.target.value);
 
       const removeItem = (goal) => {
         props.store.dispatch(removeGoalAction(goal.id));
+        return API.deleteGoal(goal.id).catch(() => {
+          props.store.dispatch(addGoalAction(goal));
+          alert("An error ocurred. Try again.");
+        });
       };
       return (
         <div>
