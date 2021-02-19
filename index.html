@@ -77,12 +77,36 @@
       };
     }
 
+    function handleAddTodo(name, callbackFunction) {
+      return (dispatch) => {
+        return API.saveTodo(name)
+          .then((todo) => {
+            dispatch(addTodoAction(todo));
+            callbackFunction();
+          })
+          .catch(() => {
+            alert("An error ocurred. Try again.");
+          });
+      };
+    }
+
     function handleDeleteTodo(todo) {
       return (dispatch) => {
         dispatch(removeTodoAction(todo.id));
 
         return API.deleteTodo(todo.id).catch(() => {
           dispatch(addTodoAction(todo));
+          alert("An error ocurred. Try again.");
+        });
+      };
+    }
+
+    function handleToggle(id) {
+      return (dispatch) => {
+        dispatch(toggleTodoAction(id));
+
+        return API.saveTodoToggle(id).catch(() => {
+          dispatch(toggleTodoAction(id));
           alert("An error ocurred. Try again.");
         });
       };
@@ -221,14 +245,9 @@
       const addItem = (event) => {
         event.preventDefault();
 
-        return API.saveTodo(todoInput.current)
-          .then((todo) => {
-            props.store.dispatch(addTodoAction(todo));
-            todoInput.current = "";
-          })
-          .catch(() => {
-            alert("An error ocurred. Try again.");
-          });
+        props.store.dispatch(
+          handleAddTodo(todoInput.current, () => (todoInput.current = ""))
+        );
       };
 
       const handleChange = (event) =>
@@ -237,14 +256,7 @@
       const removeItem = (todo) =>
         props.store.dispatch(handleDeleteTodo(todo));
 
-      const toggleItem = (id) => {
-        props.store.dispatch(toggleTodoAction(id));
-        return API.saveTodoToggle(id).catch(() => {
-          props.store.dispatch(toggleTodoAction(id));
-          alert("An error ocurred. Try again.");
-        });
-      };
-
+      const toggleItem = (id) => props.store.dispatch(handleToggle(id));
       return (
         <div>
           <h1>Todo List</h1>
