@@ -3,12 +3,12 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Udacity Todos Goals</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script>
-  <script src="https://unpkg.com/react@17/umd/react.development.js""></script>
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
   <script src=" https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
   <script src="https://tylermcginnis.com/goals-todos-api/index.js"></script>
@@ -19,7 +19,10 @@
 
   <script type="text/javascript">
     function generateId() {
-      return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36);
+      return (
+        Math.random().toString(36).substring(2) +
+        new Date().getTime().toString(36)
+      );
     }
 
     // App Code
@@ -69,8 +72,8 @@
       return {
         type: RECEIVE_DATA,
         todos,
-        goals
-      }
+        goals,
+      };
     }
 
     function todos(state = [], action) {
@@ -110,44 +113,49 @@
         case RECEIVE_DATA:
           return false;
         default:
-          return state
+          return state;
       }
     }
 
     function checker(store) {
       return (next) => (action) => {
         if (
-          action.type === ADD_TODO && action.todo.name.toLowerCase().includes('bitcoin')
+          action.type === ADD_TODO &&
+          action.todo.name.toLowerCase().includes("bitcoin")
         ) {
-          return alert("Nope. That's a bad ideia")
+          return alert("Nope. That's a bad ideia");
         } else if (
-          action.type === ADD_GOAL && action.goal.name.toLowerCase().includes('bitcoin')
+          action.type === ADD_GOAL &&
+          action.goal.name.toLowerCase().includes("bitcoin")
         ) {
-          return alert("Nope. That's a bad ideia")
+          return alert("Nope. That's a bad ideia");
         } else {
-          return next(action)
+          return next(action);
         }
-      }
+      };
     }
 
     function logger(store) {
-      return (next) => action => {
-        console.group(action.type)
+      return (next) => (action) => {
+        console.group(action.type);
 
-        console.log('The action: ', action)
-        const result = next(action)
-        console.log('The new state: ', store.getState())
+        console.log("The action: ", action);
+        const result = next(action);
+        console.log("The new state: ", store.getState());
 
-        console.groupEnd()
-        return result
-      }
+        console.groupEnd();
+        return result;
+      };
     }
 
-    const store = Redux.createStore(Redux.combineReducers({
-      todos,
-      goals,
-      loading,
-    }), Redux.applyMiddleware(checker, logger));
+    const store = Redux.createStore(
+      Redux.combineReducers({
+        todos,
+        goals,
+        loading,
+      }),
+      Redux.applyMiddleware(checker, logger)
+    );
   </script>
 
   <script type="text/babel">
@@ -158,44 +166,46 @@
             <li key={item.id}>
               <span
                 onClick={() => props.toggle && props.toggle(item.id)}
-                style={{ textDecoration: item.complete ? 'line-through' : 'none' }}
+                style={{
+                  textDecoration: item.complete ? "line-through" : "none",
+                }}
               >
                 {item.name}
               </span>
-              <button onClick={() => props.remove(item)}>
-                X
-              </button>
+              <button onClick={() => props.remove(item)}>X</button>
             </li>
           ))}
         </ul>
-      )
+      );
     }
 
     function Todos(props) {
-      const todoInput = React.useRef(null)
+      const todoInput = React.useRef(null);
 
       const addItem = (event) => {
-        event.preventDefault()
-        const name = todoInput.current
-        todoInput.current = ''
+        event.preventDefault();
+        const name = todoInput.current;
+        todoInput.current = "";
 
-        props.store.dispatch(addTodoAction({
-          name,
-          complete: false,
-          id: generateId()
-        }))
-      }
+        props.store.dispatch(
+          addTodoAction({
+            name,
+            complete: false,
+            id: generateId(),
+          })
+        );
+      };
 
-
-      const handleChange = (event) => todoInput.current = event.target.value
+      const handleChange = (event) =>
+        (todoInput.current = event.target.value);
 
       const removeItem = (todo) => {
-        props.store.dispatch(removeTodoAction(todo.id))
-      }
+        props.store.dispatch(removeTodoAction(todo.id));
+      };
 
       const toggleItem = (id) => {
-        props.store.dispatch(toggleTodoAction(id))
-      }
+        props.store.dispatch(toggleTodoAction(id));
+      };
 
       return (
         <div>
@@ -204,32 +214,35 @@
             type="text"
             placeholder="Add Todo"
             ref={todoInput}
-            onChange={handleChange} >
-          </input>
+            onChange={handleChange}
+          ></input>
           <button onClick={addItem}>Add Todo</button>
           <List items={props.todos} remove={removeItem} toggle={toggleItem} />
         </div>
-      )
+      );
     }
 
     function Goals(props) {
-      const goalInput = React.useRef(null)
+      const goalInput = React.useRef(null);
       const addItem = (event) => {
-        event.preventDefault()
+        event.preventDefault();
 
-        const name = goalInput.current
-        goalInput.current = ''
+        const name = goalInput.current;
+        goalInput.current = "";
 
-        props.store.dispatch(addGoalAction({
-          id: generateId(),
-          name
-        }))
-      }
-      const handleChange = (event) => goalInput.current = event.target.value
+        props.store.dispatch(
+          addGoalAction({
+            id: generateId(),
+            name,
+          })
+        );
+      };
+      const handleChange = (event) =>
+        (goalInput.current = event.target.value);
 
       const removeItem = (goal) => {
-        props.store.dispatch(removeGoalAction(goal.id))
-      }
+        props.store.dispatch(removeGoalAction(goal.id));
+      };
       return (
         <div>
           <h1>Goals</h1>
@@ -238,34 +251,34 @@
             placeholder="Add Goal"
             ref={goalInput}
             onChange={handleChange}
-          >
-          </input>
+          ></input>
           <button onClick={addItem}>Add Todo</button>
           <List items={props.goals} remove={removeItem} />
         </div>
-      )
+      );
     }
 
     function App(props) {
-      const [ignored, forceUpdate] = React.useReducer(x => x + 1, 0);
+      const [ignored, forceUpdate] = React.useReducer((x) => x + 1, 0);
 
       React.useEffect(() => {
-        Promise.all([
-          API.fetchGoals(), API.fetchTodos()]).then(([goals, todos]) => {
-            props.store.dispatch(receiveDataAction(todos, goals))
-            console.log('todos', todos);
-            console.log('goals', goals);
-          })
-      }, [])
+        Promise.all([API.fetchGoals(), API.fetchTodos()]).then(
+          ([goals, todos]) => {
+            props.store.dispatch(receiveDataAction(todos, goals));
+            console.log("todos", todos);
+            console.log("goals", goals);
+          }
+        );
+      }, []);
 
       React.useEffect(() => {
-        props.store.subscribe(() => forceUpdate())
-      }, [])
+        props.store.subscribe(() => forceUpdate());
+      }, []);
 
-      const { todos, goals, loading } = props.store.getState()
+      const { todos, goals, loading } = props.store.getState();
 
       if (loading === true) {
-        return <h3>Loading</h3>
+        return <h3>Loading</h3>;
       }
 
       return (
@@ -273,12 +286,10 @@
           <Todos todos={todos} store={props.store} />
           <Goals goals={goals} store={props.store} />
         </div>
-      )
+      );
     }
 
-    ReactDOM.render(
-      <App store={store} />, document.getElementById('app')
-    )
+    ReactDOM.render(<App store={store} />, document.getElementById("app"));
   </script>
 </body>
 
