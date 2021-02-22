@@ -337,7 +337,30 @@
       );
     }
 
-    ReactDOM.render(<App store={store} />, document.getElementById("app"));
+    function ConnectedApp() {
+      return (
+        <Context.Consumer>
+          {(store) => <App store={store} />}
+        </Context.Consumer>
+      );
+    }
+
+    const Context = React.createContext();
+
+    function Provider(props) {
+      return (
+        <Context.Provider value={props.store}>
+          {props.children}
+        </Context.Provider>
+      );
+    }
+
+    ReactDOM.render(
+      <Provider store={store}>
+        <ConnectedApp />
+      </Provider>,
+      document.getElementById("app")
+    );
   </script>
 </body>
 
