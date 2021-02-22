@@ -254,10 +254,12 @@
     function Todos(props) {
       const todoInput = React.useRef(null);
 
+      const { dispatch } = props;
+
       const addItem = (event) => {
         event.preventDefault();
 
-        props.dispatch(
+        dispatch(
           handleAddTodo(todoInput.current, () => (todoInput.current = ""))
         );
       };
@@ -265,10 +267,9 @@
       const handleChange = (event) =>
         (todoInput.current = event.target.value);
 
-      const removeItem = (todo) =>
-        props.dispatch(handleDeleteTodo(todo));
+      const removeItem = (todo) => dispatch(handleDeleteTodo(todo));
 
-      const toggleItem = (id) => props.dispatch(handleToggle(id));
+      const toggleItem = (id) => dispatch(handleToggle(id));
       return (
         <div>
           <h1>Todo List</h1>
@@ -284,12 +285,19 @@
       );
     }
 
+    const ConnectedTodos = connect((state) => ({
+      todos: state.todos,
+    }))(Todos);
+
     function Goals(props) {
       const goalInput = React.useRef(null);
+
+      const { dispatch } = props;
+
       const addItem = (event) => {
         event.preventDefault();
 
-        props.dispatch(
+        dispatch(
           handleAddGoal(goalInput.current, () => (goalInput.current = ""))
         );
       };
@@ -297,7 +305,7 @@
         (goalInput.current = event.target.value);
 
       const removeItem = (goal) => {
-        props.dispatch(handleDeleteGoal(goal));
+        dispatch(handleDeleteGoal(goal));
       };
       return (
         <div>
@@ -314,41 +322,20 @@
       );
     }
 
-    function ConnectedTodos() {
-      return (
-        <Context.Consumer>
-          {(store) => {
-            const { todos } = store.getState()
-            return <Todos todos={todos} dispatch={store.dispatch} />
-          }}
-        </Context.Consumer>
-      )
-    }
-
-    function ConnectedGoals() {
-      return (
-        <Context.Consumer>
-          {(store) => {
-            const { goals } = store.getState()
-
-            return < Goals goals={goals} dispatch={store.dispatch} />
-          }}
-        </Context.Consumer>
-      )
-    }
+    const ConnectedGoals = connect((state) => ({
+      goals: state.goals,
+    }))(Goals);
 
     function App(props) {
-      const [ignored, forceUpdate] = React.useReducer((x) => x + 1, 0);
+      const { dispatch } = props;
 
-      React.useEffect(() => props.store.dispatch(handleInitialData()), []);
+      React.useEffect(() => dispatch(handleInitialData()), []);
 
-      React.useEffect(() => {
-        props.store.subscribe(() => forceUpdate());
-      }, []);
+      /* React.useEffect(() => {
+    props.store.subscribe(() => forceUpdate());
+  }, []); */
 
-      const { loading } = props.store.getState();
-
-      if (loading === true) {
+      if (props.loading === true) {
         return <h3>Loading</h3>;
       }
 
@@ -360,15 +347,44 @@
       );
     }
 
-    function ConnectedApp() {
-      return (
-        <Context.Consumer>
-          {(store) => <App store={store} />}
-        </Context.Consumer>
-      );
-    }
+    const ConnectedApp = connect((store) => ({
+      loading: store.loading,
+    }))(App);
 
     const Context = React.createContext();
+
+    function connect(mapStateToProps) {
+
+      return (Component) => {
+
+        function Receiver(props) {
+          const [ignored, forceUpdate] = React.useReducer((x) => x + 1, 0);
+
+          React.useEffect(() => {
+            const { subscribe } = props.store;
+
+            const unsubscribe = subscribe(() => forceUpdate());
+            return () => unsubscribe();
+          }, []);
+
+          const { dispatch, getState } = props.store
+          const state = getState()
+          const stateNeeded = mapStateToProps(state)
+
+          return <Component {...stateNeeded} dispatch={dispatch} />
+        }
+
+        function ConnectedComponent() {
+          return (
+            <Context.Consumer>
+              {(store) => <Receiver store={store} />}
+            </Context.Consumer>
+          );
+        }
+
+        return ConnectedComponent
+      };
+    }
 
     function Provider(props) {
       return (
