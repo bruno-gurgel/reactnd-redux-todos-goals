@@ -257,7 +257,7 @@
       const addItem = (event) => {
         event.preventDefault();
 
-        props.store.dispatch(
+        props.dispatch(
           handleAddTodo(todoInput.current, () => (todoInput.current = ""))
         );
       };
@@ -266,9 +266,9 @@
         (todoInput.current = event.target.value);
 
       const removeItem = (todo) =>
-        props.store.dispatch(handleDeleteTodo(todo));
+        props.dispatch(handleDeleteTodo(todo));
 
-      const toggleItem = (id) => props.store.dispatch(handleToggle(id));
+      const toggleItem = (id) => props.dispatch(handleToggle(id));
       return (
         <div>
           <h1>Todo List</h1>
@@ -289,7 +289,7 @@
       const addItem = (event) => {
         event.preventDefault();
 
-        props.store.dispatch(
+        props.dispatch(
           handleAddGoal(goalInput.current, () => (goalInput.current = ""))
         );
       };
@@ -297,7 +297,7 @@
         (goalInput.current = event.target.value);
 
       const removeItem = (goal) => {
-        props.store.dispatch(handleDeleteGoal(goal));
+        props.dispatch(handleDeleteGoal(goal));
       };
       return (
         <div>
@@ -314,6 +314,29 @@
       );
     }
 
+    function ConnectedTodos() {
+      return (
+        <Context.Consumer>
+          {(store) => {
+            const { todos } = store.getState()
+            return <Todos todos={todos} dispatch={store.dispatch} />
+          }}
+        </Context.Consumer>
+      )
+    }
+
+    function ConnectedGoals() {
+      return (
+        <Context.Consumer>
+          {(store) => {
+            const { goals } = store.getState()
+
+            return < Goals goals={goals} dispatch={store.dispatch} />
+          }}
+        </Context.Consumer>
+      )
+    }
+
     function App(props) {
       const [ignored, forceUpdate] = React.useReducer((x) => x + 1, 0);
 
@@ -323,7 +346,7 @@
         props.store.subscribe(() => forceUpdate());
       }, []);
 
-      const { todos, goals, loading } = props.store.getState();
+      const { loading } = props.store.getState();
 
       if (loading === true) {
         return <h3>Loading</h3>;
@@ -331,8 +354,8 @@
 
       return (
         <div>
-          <Todos todos={todos} store={props.store} />
-          <Goals goals={goals} store={props.store} />
+          <ConnectedTodos />
+          <ConnectedGoals />
         </div>
       );
     }
